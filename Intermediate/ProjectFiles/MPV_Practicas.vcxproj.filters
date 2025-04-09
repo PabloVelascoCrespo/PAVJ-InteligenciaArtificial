@@ -12,6 +12,7 @@
       <Filter>Source</Filter>
     </None>
     <None Include="..\..\.gitignore" />
+    <None Include="..\..\.vsconfig" />
     <None Include="..\..\04_movimiento.pdf" />
     <None Include="..\..\README.md" />
     <Filter Include="Config">
@@ -38,6 +39,9 @@
     <ClCompile Include="..\..\Source\MPV_Practicas\AICharacter.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\ISteering.h">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
     <None Include="..\..\Source\MPV_Practicas\MPV_Practicas.Build.cs">
       <Filter>Source\MPV_Practicas</Filter>
     </None>
@@ -45,6 +49,12 @@
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\MPV_Practicas.h">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\Seek.cpp">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\Seek.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\util.cpp">

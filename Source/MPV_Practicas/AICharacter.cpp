@@ -4,6 +4,7 @@
 #include "AICharacter.h"
 #include "params/params.h"
 #include "debug/debugdraw.h"
+#include "Seek.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -17,7 +18,8 @@ AAICharacter::AAICharacter()
 void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	m_steering = new Seek(this);
+	current_linear_velocity = FVector(0.0f, 0.0f, 0.0f);
 	ReadParams("params.xml", m_params);
 }
 
@@ -27,6 +29,16 @@ void AAICharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	current_angle = GetActorAngle();
 
+	Accelerations acc = m_steering->GetSteering();
+	FVector current_acceleration = acc.linear_acceleration * DeltaTime;
+	current_linear_velocity += current_acceleration;
+	if (current_linear_velocity.Length() > m_params.max_velocity)
+	{
+		current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
+	}
+	current_linear_velocity += current_acceleration;
+	FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
+	SetActorLocation(charPos);
 	DrawDebug();
 }
 
@@ -67,10 +79,18 @@ void AAICharacter::DrawDebug()
 	SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, 20.0f);
 	FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
 	SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
+	
+	SetArrow(this, TEXT("linear_velocity"), current_linear_velocity, current_linear_velocity.Length());
+	SetArrow(this, TEXT("linear_acceleration"), m_steering->GetSteering().linear_acceleration, m_steering->GetSteering().linear_acceleration.Length());
 
 	TArray<TArray<FVector>> Polygons = {
 		{ FVector(0.f, 0.f, 0.f), FVector(100.f, 0.f, 0.f), FVector(100.f, 0.f, 100.0f), FVector(0.f, 0.f, 100.0f) },
 		{ FVector(100.f, 0.f, 0.f), FVector(200.f, 0.f, 0.f), FVector(200.f, 0.f, 100.0f) }
 	};
 	SetPolygons(this, TEXT("navmesh"), TEXT("mesh"), Polygons, NavmeshMaterial);
+}
+
+FVector AAICharacter::GetLinearVelocity() const
+{
+	return current_linear_velocity;
 }

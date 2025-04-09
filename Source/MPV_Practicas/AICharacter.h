@@ -7,9 +7,11 @@
 #include "params/params.h"
 #include "GameFramework/PlayerController.h"
 #include "util.h"
-
+#include "ISteering.h"
 
 #include "AICharacter.generated.h"
+
+class Seek;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -68,5 +70,11 @@ public:
 	void SetActorAngle(float angle) { FRotator newRot(angle, 0.0f, 0.0f); SetActorRotation(newRot); }
 
 	void DrawDebug();
+
+	FVector GetLinearVelocity() const;
+
+private:
+	FVector current_linear_velocity;
+	Seek* m_steering;
 
 };
