@@ -39,6 +39,12 @@
     <ClCompile Include="..\..\Source\MPV_Practicas\AICharacter.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\Arrive.cpp">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\Arrive.h">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\ISteering.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>

@@ -5,6 +5,7 @@
 #include "params/params.h"
 #include "debug/debugdraw.h"
 #include "Seek.h"
+#include "Arrive.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -18,7 +19,8 @@ AAICharacter::AAICharacter()
 void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	m_steering = new Seek(this);
+	// m_steering = new Seek(this); // PRACTICA 1
+	m_steering = new Arrive(this); // PRACTICA 2
 	current_linear_velocity = FVector(0.0f, 0.0f, 0.0f);
 	ReadParams("params.xml", m_params);
 }
@@ -29,7 +31,9 @@ void AAICharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	current_angle = GetActorAngle();
 
-	Accelerations acc = m_steering->GetSteering();
+	Accelerations acc;
+	acc = m_steering->GetSteering();
+
 	FVector current_acceleration = acc.linear_acceleration * DeltaTime;
 	current_linear_velocity += current_acceleration;
 	if (current_linear_velocity.Length() > m_params.max_velocity)
@@ -40,6 +44,7 @@ void AAICharacter::Tick(float DeltaTime)
 	FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
 	SetActorLocation(charPos);
 	DrawDebug();
+	
 }
 
 // Called to bind functionality to input
@@ -76,7 +81,7 @@ void AAICharacter::DrawDebug()
 
 	SetPath(this, TEXT("follow_path"), TEXT("path"), Points, 5.0f, PathMaterial);
 
-	SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, 20.0f);
+	SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, m_params.arrive_radius);
 	FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
 	SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
 	

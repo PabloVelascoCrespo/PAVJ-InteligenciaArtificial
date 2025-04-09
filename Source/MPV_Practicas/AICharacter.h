@@ -12,6 +12,7 @@
 #include "AICharacter.generated.h"
 
 class Seek;
+class Arrive;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -75,6 +76,7 @@ public:
 
 private:
 	FVector current_linear_velocity;
-	Seek* m_steering;
+	// Seek* m_steering;
+	Arrive* m_steering;
 
 };

@@ -47,6 +47,14 @@ bool ReadParams(const char* filename, Params& params)
 
 		}
 
+		paramElem = MyChildNode->FindChildNode(TEXT("arrive_radius"));
+		if (paramElem)
+		{
+			value = paramElem->GetAttribute("value");
+			FDefaultValueHelper::ParseFloat(value, params.arrive_radius);
+
+		}
+		
 		paramElem = MyChildNode->FindChildNode(TEXT("targetPosition"));
 		if (paramElem)
 		{
