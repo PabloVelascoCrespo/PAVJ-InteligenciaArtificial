@@ -40,6 +40,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	Params m_params;
 public:	
 	// Called every frame
@@ -76,7 +78,6 @@ public:
 
 private:
 	FVector current_linear_velocity;
-	// Seek* m_steering;
-	Arrive* m_steering;
-
+	//Seek* m_steering; // P1
+	Arrive* m_steering; // P2
 };

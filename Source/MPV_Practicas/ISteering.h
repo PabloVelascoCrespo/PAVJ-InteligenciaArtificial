@@ -5,8 +5,8 @@ class AAICharacter;
 
 struct Accelerations
 {
-	FVector linear_acceleration;
-	float angular_acceleration;
+	FVector linear_acceleration = FVector(0.0f, 0.0f, 0.0f);
+	float angular_acceleration = 0.0f;
 };
 
 class ISteering

@@ -25,22 +25,30 @@ void AAICharacter::BeginPlay()
 	ReadParams("params.xml", m_params);
 }
 
+void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	if (m_steering)
+	{
+		delete m_steering;
+		m_steering = nullptr;
+	}
+}
+
 // Called every frame
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	current_angle = GetActorAngle();
 
-	Accelerations acc;
-	acc = m_steering->GetSteering();
+	Accelerations acc = m_steering->GetSteering();
 
-	FVector current_acceleration = acc.linear_acceleration * DeltaTime;
-	current_linear_velocity += current_acceleration;
+	current_linear_velocity += acc.linear_acceleration * DeltaTime;
+
 	if (current_linear_velocity.Length() > m_params.max_velocity)
 	{
 		current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
 	}
-	current_linear_velocity += current_acceleration;
 	FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
 	SetActorLocation(charPos);
 	DrawDebug();

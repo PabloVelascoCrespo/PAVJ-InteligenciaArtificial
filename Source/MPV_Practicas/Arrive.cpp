@@ -7,28 +7,29 @@ Accelerations Arrive::GetSteering()
   FVector targetPosition = m_owner->GetParams().targetPosition;
   FVector charPos = m_owner->GetActorLocation();
 
-  if ((targetPosition - charPos).Length() <= m_owner->GetParams().arrive_radius)
-  {
-    FVector desiredVel = FVector::Zero(); // TODO
-    FVector normVel = desiredVel.GetSafeNormal();
-    desiredVel = normVel * m_owner->GetParams().max_velocity;
+  FVector toTarget = targetPosition - charPos;
+  float distance = toTarget.Length();
 
-    FVector desiredAcc = desiredVel - m_owner->GetLinearVelocity();
-    FVector normAcc = desiredAcc.GetSafeNormal();
-    desiredAcc = normAcc * m_owner->GetParams().max_acceleration;
-    acc.linear_acceleration = desiredAcc;
-  }
-  else
+  if (distance <= KINDA_SMALL_NUMBER)
   {
-    FVector desiredVel = targetPosition - charPos;
-    FVector normVel = desiredVel.GetSafeNormal();
-    desiredVel = normVel * m_owner->GetParams().max_velocity;
-
-    FVector desiredAcc = desiredVel - m_owner->GetLinearVelocity();
-    FVector normAcc = desiredAcc.GetSafeNormal();
-    desiredAcc = normAcc * m_owner->GetParams().max_acceleration;
-    acc.linear_acceleration = desiredAcc;
+    return acc;
   }
- 
+
+  float arriveRadius = m_owner->GetParams().arrive_radius;
+  float maxVelocity = m_owner->GetParams().max_velocity;
+  float maxAccel = m_owner->GetParams().max_acceleration;
+
+  float speed = maxVelocity;
+  if (distance < arriveRadius)
+  {
+    speed = maxVelocity * (distance / arriveRadius);
+  }
+
+  FVector desiredVelocity = toTarget.GetSafeNormal() * speed;
+  FVector desiredAccel = desiredVelocity - m_owner->GetLinearVelocity();
+
+  acc.linear_acceleration = desiredAccel.GetClampedToMaxSize(maxAccel);
+
   return acc;
+
 }
