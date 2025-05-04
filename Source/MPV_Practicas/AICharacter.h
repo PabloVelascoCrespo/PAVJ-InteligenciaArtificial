@@ -13,6 +13,7 @@
 
 class Seek;
 class Arrive;
+class AlignToMovement;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -76,8 +77,13 @@ public:
 
 	FVector GetLinearVelocity() const;
 
+	float GetAngularVelocity() const;
+
 private:
 	FVector current_linear_velocity;
+	float current_angular_velocity = 0.0f;
 	//Seek* m_steering; // P1
-	Arrive* m_steering; // P2
+	Arrive* m_movement_steering; // P2
+	AlignToMovement* m_rotation_steering;
+
 };
