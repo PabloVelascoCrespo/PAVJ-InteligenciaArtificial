@@ -103,6 +103,23 @@ bool ReadParams(const char* filename, Params& params)
 			FDefaultValueHelper::ParseFloat(value, params.targetRotation);
 
 		}
+
+		// TODO: AÑADIR EL LOOK_AHEAD Y EL TIME_AHEAD
+		paramElem = MyChildNode->FindChildNode(TEXT("look_ahead"));
+		if (paramElem)
+		{
+			value = paramElem->GetAttribute("value");
+			FDefaultValueHelper::ParseFloat(value, params.look_ahead);
+
+		}
+
+		paramElem = MyChildNode->FindChildNode(TEXT("time_ahead"));
+		if (paramElem)
+		{
+			value = paramElem->GetAttribute("value");
+			FDefaultValueHelper::ParseFloat(value, params.time_ahead);
+
+		}
 	}
 	return true;
 }

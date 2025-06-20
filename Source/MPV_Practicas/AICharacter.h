@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "params/params.h"
+#include "path/path.h"
 #include "GameFramework/PlayerController.h"
 #include "util.h"
 #include "ISteering.h"
@@ -14,6 +15,7 @@
 class Seek;
 class Arrive;
 class AlignToMovement;
+class PathFollowing;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -44,6 +46,8 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	Params m_params;
+
+	Path m_path;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,6 +62,7 @@ public:
 	
 	const Params& GetParams() const { return m_params; }
 
+	const Path& GetPath() const { return m_path; }
 	float GetActorAngle() const
 	{
 		FQuat currQuat = GetActorQuat();
@@ -78,12 +83,18 @@ public:
 	FVector GetLinearVelocity() const;
 
 	float GetAngularVelocity() const;
+	
+	void SetTargetPosition(FVector NewTargetPosition);
 
+	FVector closestPoint;
+
+	FVector lookAheadTarget;
 private:
 	FVector current_linear_velocity;
 	float current_angular_velocity = 0.0f;
 	//Seek* m_steering; // P1
-	Arrive* m_movement_steering; // P2
+	//Arrive* m_movement_steering; // P2
+	PathFollowing* m_movement_steering; // P3
 	AlignToMovement* m_rotation_steering;
 
 };

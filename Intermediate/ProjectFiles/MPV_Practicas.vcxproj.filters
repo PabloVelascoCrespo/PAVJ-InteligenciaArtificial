@@ -14,6 +14,7 @@
     <None Include="..\..\.gitignore" />
     <None Include="..\..\.vsconfig" />
     <None Include="..\..\04_movimiento.pdf" />
+    <None Include="..\..\05_movimiento_adv.pdf" />
     <None Include="..\..\README.md" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
@@ -69,6 +70,12 @@
     <ClCompile Include="..\..\Source\MPV_Practicas\MPV_Practicas.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\PathFollowing.cpp">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\PathFollowing.h">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\Seek.cpp">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
@@ -98,6 +105,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\params\params.h">
       <Filter>Source\MPV_Practicas\params</Filter>
+    </ClCompile>
+    <Filter Include="Source\MPV_Practicas\path">
+      <UniqueIdentifier>{49415C0C-A484-3B98-9524-703B0A637A78}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MPV_Practicas\path\path.cpp">
+      <Filter>Source\MPV_Practicas\path</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\path\path.h">
+      <Filter>Source\MPV_Practicas\path</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,12 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "AICharacter.h"
 #include "params/params.h"
+#include "path/path.h"
 #include "debug/debugdraw.h"
 #include "Seek.h"
 #include "Arrive.h"
 #include "AlignToMovement.h"
+#include "PathFollowing.h"
+
 // Sets default values
 AAICharacter::AAICharacter()
 {
@@ -20,10 +22,12 @@ void AAICharacter::BeginPlay()
 {
   Super::BeginPlay();
   // m_steering = new Seek(this); // PRACTICA 1
-  m_movement_steering = new Arrive(this); // PRACTICA 2
+  //m_movement_steering = new Arrive(this); // PRACTICA 2
+  m_movement_steering = new PathFollowing(this); // PRACTICA 3
   m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
   current_linear_velocity = FVector(0.0f, 0.0f, 0.0f);
   ReadParams("params.xml", m_params);
+  ReadPath("path.xml", m_path);
 }
 
 void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -103,16 +107,9 @@ void AAICharacter::OnClickedRight(const FVector& mousePosition)
 
 void AAICharacter::DrawDebug()
 {
-  TArray<FVector> Points =
-  {
-    FVector(0.f, 0.f, 0.f),
-    FVector(100.f, 0.f, 0.f),
-    FVector(100.f, 0.f, 100.f),
-    FVector(100.f, 0.f, 100.f),
-    FVector(0.f, 0.f, 100.f)
-  };
-
-  SetPath(this, TEXT("follow_path"), TEXT("path"), Points, 5.0f, PathMaterial);
+  SetPath(this, TEXT("follow_path"), TEXT("path"), m_path.points, 5.0f, PathMaterial);
+  SetCircle(this, TEXT("closest_point"), closestPoint, 10.0f, FLinearColor::Blue);
+  SetCircle(this, TEXT("look_ahead_point"), lookAheadTarget, 10.0f, FLinearColor::Yellow);
 
   SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, m_params.arrive_radius);
   FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
@@ -136,4 +133,9 @@ FVector AAICharacter::GetLinearVelocity() const
 float AAICharacter::GetAngularVelocity() const
 {
   return current_angular_velocity;
+}
+
+void AAICharacter::SetTargetPosition(FVector NewTargetPosition)
+{
+  m_params.targetPosition = NewTargetPosition;
 }
