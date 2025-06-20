@@ -104,7 +104,7 @@ bool ReadParams(const char* filename, Params& params)
 
 		}
 
-		// TODO: AÑADIR EL LOOK_AHEAD Y EL TIME_AHEAD
+		// P4 
 		paramElem = MyChildNode->FindChildNode(TEXT("look_ahead"));
 		if (paramElem)
 		{
@@ -119,6 +119,14 @@ bool ReadParams(const char* filename, Params& params)
 			value = paramElem->GetAttribute("value");
 			FDefaultValueHelper::ParseFloat(value, params.time_ahead);
 
+		}
+
+		//P5
+		paramElem = MyChildNode->FindChildNode(TEXT("char_radius"));
+		if (paramElem)
+		{
+			value = paramElem->GetAttribute("value");
+			FDefaultValueHelper::ParseFloat(value, params.char_radius);
 		}
 	}
 	return true;

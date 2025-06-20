@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "params/params.h"
 #include "path/path.h"
+#include "obstacle/obstacle.h"
 #include "GameFramework/PlayerController.h"
 #include "util.h"
 #include "ISteering.h"
@@ -15,7 +16,9 @@
 class Seek;
 class Arrive;
 class AlignToMovement;
+class ObstacleAvoidance;
 class PathFollowing;
+class PathFollowingWithObstacleAvoidance;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -48,6 +51,8 @@ protected:
 	Params m_params;
 
 	Path m_path;
+
+	TArray<Obstacle> m_obstacles;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -86,15 +91,24 @@ public:
 	
 	void SetTargetPosition(FVector NewTargetPosition);
 
+	void SetTargetRotation(float NewTargetRotation);
+
 	FVector closestPoint;
 
-	FVector lookAheadTarget;
+	const TArray<Obstacle>& GetObstacles() const;
+
+	void SetCollidingObstacle(Obstacle* CollidingObstacle);
 private:
 	FVector current_linear_velocity;
 	float current_angular_velocity = 0.0f;
+	Obstacle* m_MostThreateningObstacle;
 	//Seek* m_steering; // P1
 	//Arrive* m_movement_steering; // P2
-	PathFollowing* m_movement_steering; // P3
+	//PathFollowing* m_movement_steering; // P3
+	//ObstacleAvoidance* m_movement_steering; // P4	
+	PathFollowing* m_pathFollowing; // P5
+	ObstacleAvoidance* m_obstacleAvoidance; // P5
+	PathFollowingWithObstacleAvoidance* m_movement_steering; // P5
 	AlignToMovement* m_rotation_steering;
 
 };

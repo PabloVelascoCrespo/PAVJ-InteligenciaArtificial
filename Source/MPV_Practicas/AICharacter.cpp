@@ -8,134 +8,189 @@
 #include "Arrive.h"
 #include "AlignToMovement.h"
 #include "PathFollowing.h"
+#include "obstacle/obstacle.h"
+#include "ObstacleAvoidance.h"
+#include "PathFollowingWithObstacleAvoidance.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
 {
-  // Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-  PrimaryActorTick.bCanEverTick = true;
-
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
 void AAICharacter::BeginPlay()
 {
-  Super::BeginPlay();
-  // m_steering = new Seek(this); // PRACTICA 1
-  //m_movement_steering = new Arrive(this); // PRACTICA 2
-  m_movement_steering = new PathFollowing(this); // PRACTICA 3
-  m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
-  current_linear_velocity = FVector(0.0f, 0.0f, 0.0f);
-  ReadParams("params.xml", m_params);
-  ReadPath("path.xml", m_path);
+	Super::BeginPlay();
+	// m_steering = new Seek(this); // PRACTICA 1
+	//m_movement_steering = new Arrive(this); // PRACTICA 2
+	//m_movement_steering = new PathFollowing(this); // PRACTICA 3
+	//m_movement_steering = new ObstacleAvoidance(this); // PRACTICA 4
+	
+	m_pathFollowing = new PathFollowing(this); // PRACTICA 5
+	m_obstacleAvoidance = new ObstacleAvoidance(this); // PRACTICA 5
+
+	m_movement_steering = new PathFollowingWithObstacleAvoidance(this, m_pathFollowing, m_obstacleAvoidance); // PRACTICA 5
+	m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
+
+	ReadParams("params.xml", m_params);
+	ReadPath("path.xml", m_path);
+	ReadObstacles("obstacles.xml", m_obstacles);
 }
 
 void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-  Super::EndPlay(EndPlayReason);
-  if (m_movement_steering)
-  {
-    delete m_movement_steering;
-    m_movement_steering = nullptr;
-  }  
-  if (m_rotation_steering)
-  {
-    delete m_rotation_steering;
-    m_rotation_steering = nullptr;
-  }
+	Super::EndPlay(EndPlayReason);
+	if (m_movement_steering)
+	{
+		delete m_movement_steering;
+		m_movement_steering = nullptr;
+	}
+	if (m_rotation_steering)
+	{
+		delete m_rotation_steering;
+		m_rotation_steering = nullptr;
+	}
+	if (m_pathFollowing)
+	{
+		delete m_pathFollowing;
+		m_pathFollowing = nullptr;
+	}
+	if (m_obstacleAvoidance)
+	{
+		delete m_obstacleAvoidance;
+		m_obstacleAvoidance = nullptr;
+	}
 }
 
 // Called every frame
 void AAICharacter::Tick(float DeltaTime)
 {
-  Super::Tick(DeltaTime);
-  current_angle = GetActorAngle();
+	Super::Tick(DeltaTime);
+	current_angle = GetActorAngle();
 
-  // == STEERING BEHAVIORS == 
-  Accelerations acc;
-  acc.linear_acceleration = m_movement_steering->GetSteering().linear_acceleration;
-  acc.angular_acceleration = m_rotation_steering->GetSteering().angular_acceleration;
+	// == STEERING BEHAVIORS == 
+	Accelerations acc;
+	acc.linear_acceleration = m_movement_steering->GetSteering().linear_acceleration;
+	acc.angular_acceleration = m_rotation_steering->GetSteering().angular_acceleration;
 
-  // == LINEAR VELOCITY ==
-  current_linear_velocity += acc.linear_acceleration * DeltaTime;
+	// == LINEAR VELOCITY ==
+	current_linear_velocity += acc.linear_acceleration * DeltaTime;
 
-  if (current_linear_velocity.Length() > m_params.max_velocity)
-  {
-    current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
-  }
+	if (current_linear_velocity.Length() > m_params.max_velocity)
+	{
+		current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
+	}
 
-  FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
-  SetActorLocation(charPos);
-  
+	FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
+	SetActorLocation(charPos);
 
-  // == ANGULAR VELOCITY == 
-  current_angular_velocity += acc.angular_acceleration * DeltaTime;
 
-  if (current_angular_velocity > m_params.max_angular_velocity)
-  {
-    current_angular_velocity = FMath::Clamp(current_angular_velocity, -m_params.max_angular_velocity, m_params.max_angular_velocity);
-  }
-    current_angular_velocity += acc.angular_acceleration * DeltaTime;
+	// == ANGULAR VELOCITY == 
+	current_angular_velocity += acc.angular_acceleration * DeltaTime;
 
-  float newAngle = current_angle + current_angular_velocity * DeltaTime;
-  SetActorRotation(FRotator(newAngle, 0, 0));
-  
-  DrawDebug();
+	if (current_angular_velocity > m_params.max_angular_velocity)
+	{
+		current_angular_velocity = FMath::Clamp(current_angular_velocity, -m_params.max_angular_velocity, m_params.max_angular_velocity);
+	}
+	current_angular_velocity += acc.angular_acceleration * DeltaTime;
+
+	float newAngle = current_angle + current_angular_velocity * DeltaTime;
+	SetActorRotation(FRotator(newAngle, 0, 0));
+
+	DrawDebug();
 
 }
 
 // Called to bind functionality to input
 void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-  Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
 void AAICharacter::OnClickedLeft(const FVector& mousePosition)
 {
-  SetActorLocation(mousePosition);
+	SetActorLocation(mousePosition);
 }
 
 void AAICharacter::OnClickedRight(const FVector& mousePosition)
 {
-  m_params.targetPosition = mousePosition;
+	m_params.targetPosition = mousePosition;
 
-  FVector dir = (mousePosition - GetActorLocation()).GetSafeNormal();
-  float angle = FMath::RadiansToDegrees(atan2(dir.Z, dir.X));
-  m_params.targetRotation = angle;
+	FVector dir = (mousePosition - GetActorLocation()).GetSafeNormal();
+	float angle = FMath::RadiansToDegrees(atan2(dir.Z, dir.X));
+	m_params.targetRotation = angle;
 }
 
 void AAICharacter::DrawDebug()
 {
-  SetPath(this, TEXT("follow_path"), TEXT("path"), m_path.points, 5.0f, PathMaterial);
-  SetCircle(this, TEXT("closest_point"), closestPoint, 10.0f, FLinearColor::Blue);
-  SetCircle(this, TEXT("look_ahead_point"), lookAheadTarget, 10.0f, FLinearColor::Yellow);
+	SetPath(this, TEXT("follow_path"), TEXT("path"), m_path.points, 5.0f, PathMaterial);
+	SetCircle(this, TEXT("closest_point"), closestPoint, 10.0f, FLinearColor::Blue);
 
-  SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, m_params.arrive_radius);
-  FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
-  SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
+	SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, m_params.arrive_radius, FLinearColor::Yellow);
+	FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
+	SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
 
-  SetArrow(this, TEXT("linear_velocity"), current_linear_velocity, current_linear_velocity.Length());
-  SetArrow(this, TEXT("linear_acceleration"), m_movement_steering->GetSteering().linear_acceleration, m_movement_steering->GetSteering().linear_acceleration.Length());
+	SetArrow(this, TEXT("linear_velocity"), current_linear_velocity, current_linear_velocity.Length());
+	SetArrow(this, TEXT("linear_acceleration"), m_movement_steering->GetSteering().linear_acceleration, m_movement_steering->GetSteering().linear_acceleration.Length());
 
-  TArray<TArray<FVector>> Polygons = {
-    { FVector(0.f, 0.f, 0.f), FVector(100.f, 0.f, 0.f), FVector(100.f, 0.f, 100.0f), FVector(0.f, 0.f, 100.0f) },
-    { FVector(100.f, 0.f, 0.f), FVector(200.f, 0.f, 0.f), FVector(200.f, 0.f, 100.0f) }
-  };
-  SetPolygons(this, TEXT("navmesh"), TEXT("mesh"), Polygons, NavmeshMaterial);
+	TArray<TArray<FVector>> Polygons = {
+	  { FVector(0.f, 0.f, 0.f), FVector(100.f, 0.f, 0.f), FVector(100.f, 0.f, 100.0f), FVector(0.f, 0.f, 100.0f) },
+	  { FVector(100.f, 0.f, 0.f), FVector(200.f, 0.f, 0.f), FVector(200.f, 0.f, 100.0f) }
+	};
+	SetPolygons(this, TEXT("navmesh"), TEXT("mesh"), Polygons, NavmeshMaterial);
+
+	for (int i = 0; i < m_obstacles.Num(); ++i)
+	{
+		const Obstacle& obs = m_obstacles[i];
+		FString name = FString::Printf(TEXT("obstacle%d"), i + 1);
+
+		if (!m_MostThreateningObstacle)
+		{
+			SetCircle(this, name, obs.center, obs.radius, FLinearColor::White);
+		}
+
+		const bool isColliding = (obs.center == m_MostThreateningObstacle->center);
+
+		if (isColliding)
+		{
+			SetCircle(this, name, obs.center, obs.radius, FLinearColor::Red);
+		}
+		else
+		{
+			SetCircle(this, name, obs.center, obs.radius, FLinearColor::White);
+		}
+	}
 }
 
 FVector AAICharacter::GetLinearVelocity() const
 {
-  return current_linear_velocity;
+	return current_linear_velocity;
 }
 
 float AAICharacter::GetAngularVelocity() const
 {
-  return current_angular_velocity;
+	return current_angular_velocity;
 }
 
 void AAICharacter::SetTargetPosition(FVector NewTargetPosition)
 {
-  m_params.targetPosition = NewTargetPosition;
+	m_params.targetPosition = NewTargetPosition;
+}
+
+void AAICharacter::SetTargetRotation(float NewTargetRotation)
+{
+	m_params.targetRotation = NewTargetRotation;
+}
+
+const TArray<Obstacle>& AAICharacter::GetObstacles() const
+{
+	return m_obstacles;
+}
+
+void AAICharacter::SetCollidingObstacle(Obstacle* MostThreateningObstacle)
+{
+	m_MostThreateningObstacle = MostThreateningObstacle;
 }

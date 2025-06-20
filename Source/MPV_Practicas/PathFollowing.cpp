@@ -2,6 +2,7 @@
 #include "path/path.h"
 #include "AICharacter.h"
 #include "Arrive.h"
+#include "AlignToMovement.h"
 
 Accelerations PathFollowing::GetSteering()
 {
@@ -43,12 +44,15 @@ Accelerations PathFollowing::GetSteering()
   FVector lookAheadTarget = closestPoint + dir * lookAhead;
 
   // Paso 3: usar Arrive hacia lookAheadTarget
-  //m_owner->GetParams().targetPosition = lookAheadTarget; // TODO: CAMBIAR ESTO POR UN SETTER?
   m_owner->SetTargetPosition(lookAheadTarget);
+  float angle = FMath::RadiansToDegrees(atan2(dir.Z, dir.X));
+  m_owner->SetTargetRotation(angle);
   m_owner->closestPoint = closestPoint;
-  m_owner->lookAheadTarget = lookAheadTarget;
-  Arrive arrive(m_owner);
-  Accelerations acc = arrive.GetSteering();
 
+  Arrive arrive(m_owner);
+  AlignToMovement align(m_owner);
+
+  Accelerations acc;
+  acc.linear_acceleration = arrive.GetSteering().linear_acceleration;
   return acc;
 }
