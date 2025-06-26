@@ -15,6 +15,7 @@
     <None Include="..\..\.vsconfig" />
     <None Include="..\..\04_movimiento.pdf" />
     <None Include="..\..\05_movimiento_adv.pdf" />
+    <None Include="..\..\06_pathfinding.pdf" />
     <None Include="..\..\README.md" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
@@ -70,10 +71,22 @@
     <ClCompile Include="..\..\Source\MPV_Practicas\MPV_Practicas.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\ObstacleAvoidance.cpp">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\ObstacleAvoidance.h">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\PathFollowing.cpp">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\PathFollowing.h">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\PathFollowingWithObstacleAvoidance.cpp">
+      <Filter>Source\MPV_Practicas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\PathFollowingWithObstacleAvoidance.h">
       <Filter>Source\MPV_Practicas</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\Seek.cpp">
@@ -97,6 +110,15 @@
     <ClCompile Include="..\..\Source\MPV_Practicas\debug\debugdraw.h">
       <Filter>Source\MPV_Practicas\debug</Filter>
     </ClCompile>
+    <Filter Include="Source\MPV_Practicas\obstacle">
+      <UniqueIdentifier>{64C0FF22-8497-378B-A152-F96A6663686E}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MPV_Practicas\obstacle\obstacle.cpp">
+      <Filter>Source\MPV_Practicas\obstacle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\obstacle\obstacle.h">
+      <Filter>Source\MPV_Practicas\obstacle</Filter>
+    </ClCompile>
     <Filter Include="Source\MPV_Practicas\params">
       <UniqueIdentifier>{A1EE9A3E-A73D-3CF1-865E-71C726A6464A}</UniqueIdentifier>
     </Filter>
@@ -114,6 +136,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\path\path.h">
       <Filter>Source\MPV_Practicas\path</Filter>
+    </ClCompile>
+    <Filter Include="Source\MPV_Practicas\pathfinder">
+      <UniqueIdentifier>{A45DC9A3-925F-35D3-9D78-D2220AEA4E41}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MPV_Practicas\pathfinder\pathfinder.cpp">
+      <Filter>Source\MPV_Practicas\pathfinder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\pathfinder\pathfinder.h">
+      <Filter>Source\MPV_Practicas\pathfinder</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -19,6 +19,7 @@ class AlignToMovement;
 class ObstacleAvoidance;
 class PathFollowing;
 class PathFollowingWithObstacleAvoidance;
+class Pathfinder;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -53,6 +54,8 @@ protected:
 	Path m_path;
 
 	TArray<Obstacle> m_obstacles;
+	
+	TSharedPtr<Pathfinder> PathfinderSystem;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -110,5 +113,8 @@ private:
 	ObstacleAvoidance* m_obstacleAvoidance; // P5
 	PathFollowingWithObstacleAvoidance* m_movement_steering; // P5
 	AlignToMovement* m_rotation_steering;
-
+	float CellSize = 100.0f;
+	FVector2D WorldToGrid(const FVector& WorldPos, const FVector& Orig = FVector::ZeroVector);
+	FVector GridToWorld(const FVector2D& GridPos, const FVector& Orig = FVector::ZeroVector);
+	TArray<FVector> Path;
 };

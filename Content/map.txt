@@ -1,0 +1,5 @@
+.A..#BB..
+AA..##BB.
+AABBCCDD.
+.A..#BB..
+.A..#BB..
