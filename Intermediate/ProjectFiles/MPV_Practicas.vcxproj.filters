@@ -17,6 +17,8 @@
     <None Include="..\..\05_movimiento_adv.pdf" />
     <None Include="..\..\06_pathfinding.pdf" />
     <None Include="..\..\08_Pathfinding_navmesh.pdf" />
+    <None Include="..\..\09_state_machines.pdf" />
+    <None Include="..\..\10_behavior_trees.pdf" />
     <None Include="..\..\README.md" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
@@ -155,6 +157,78 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\pathfinder\pathfinder.h">
       <Filter>Source\MPV_Practicas\pathfinder</Filter>
+    </ClCompile>
+    <Filter Include="Source\MPV_Practicas\state machine">
+      <UniqueIdentifier>{27A074D0-3E40-3DBB-B91B-37683CA92D1B}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\action.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\attack.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\attack.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\canSeeEnemy.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\canSeeEnemy.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\condition.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\followingEnemy.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\followingEnemy.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\gotoAction.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\idle.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\idle.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\inAttackRange.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\inAttackRange.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\isDead.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\isDead.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\setImage.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\setImage.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\state.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\state.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\stateMachine.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\stateMachine.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\transition.cpp">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\state machine\transition.h">
+      <Filter>Source\MPV_Practicas\state machine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

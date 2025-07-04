@@ -25,102 +25,113 @@ struct NavMesh;
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
 {
-	GENERATED_BODY()
+  GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
-	AAICharacter();
+  // Sets default values for this pawn's properties
+  AAICharacter();
 
-	/**  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AIChar)
-	uint32 bDoMovement : 1;
+  /**  */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AIChar)
+  uint32 bDoMovement : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AIChar)
-		float current_angle;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AIChar)
+  float current_angle;
 
-	UPROPERTY(EditAnywhere)
-		UMaterialInterface* PathMaterial;
+  UPROPERTY(EditAnywhere)
+  UMaterialInterface* PathMaterial;
 
-	UPROPERTY(EditAnywhere)
-		UMaterialInterface* NavmeshMaterial;
+  UPROPERTY(EditAnywhere)
+  UMaterialInterface* NavmeshMaterial;
 
+  void Attack();
+
+  bool CanSeePlayer();
+
+  bool IsDead();
+
+  bool IsEnemyInRange();
+
+  void MoveTowardsEnemy();
+
+  void SetImage(const char* imagepath);
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+  // Called when the game starts or when spawned
+  virtual void BeginPlay() override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	Params m_params;
+  Params m_params;
 
-	Path m_path;
+  Path m_path;
 
-	TArray<Obstacle> m_obstacles;
-	
-	TSharedPtr<Pathfinder> PathfinderSystem;
+  TArray<Obstacle> m_obstacles;
 
-	TSharedPtr<NavMesh> m_NavMesh;
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+  TSharedPtr<Pathfinder> PathfinderSystem;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+  TSharedPtr<NavMesh> m_NavMesh;
+public:
+  // Called every frame
+  virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable, Category = "AIFunctions")
-	void OnClickedLeft(const FVector& mousePosition);
-	UFUNCTION(BlueprintCallable, Category = "AIFunctions")
-	void OnClickedRight(const FVector& mousePosition);
-	
-	const Params& GetParams() const { return m_params; }
+  // Called to bind functionality to input
+  virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	const Path& GetPath() const { return m_path; }
-	float GetActorAngle() const
-	{
-		FQuat currQuat = GetActorQuat();
-		FVector axis;
-		float axisAngle;
-		currQuat.ToAxisAndAngle(axis, axisAngle);
-		axisAngle = FMath::RadiansToDegrees(axisAngle);
-		if (axis.Y > 0.0f)
-			axisAngle = -axisAngle;
+  UFUNCTION(BlueprintCallable, Category = "AIFunctions")
+  void OnClickedLeft(const FVector& mousePosition);
+  UFUNCTION(BlueprintCallable, Category = "AIFunctions")
+  void OnClickedRight(const FVector& mousePosition);
 
-		axisAngle = convertTo360(axisAngle);
-		return axisAngle;
-	}
-	void SetActorAngle(float angle) { FRotator newRot(angle, 0.0f, 0.0f); SetActorRotation(newRot); }
+  const Params& GetParams() const { return m_params; }
 
-	void DrawDebug();
+  const Path& GetPath() const { return m_path; }
+  float GetActorAngle() const
+  {
+    FQuat currQuat = GetActorQuat();
+    FVector axis;
+    float axisAngle;
+    currQuat.ToAxisAndAngle(axis, axisAngle);
+    axisAngle = FMath::RadiansToDegrees(axisAngle);
+    if (axis.Y > 0.0f)
+      axisAngle = -axisAngle;
 
-	FVector GetLinearVelocity() const;
+    axisAngle = convertTo360(axisAngle);
+    return axisAngle;
+  }
+  void SetActorAngle(float angle) { FRotator newRot(angle, 0.0f, 0.0f); SetActorRotation(newRot); }
 
-	float GetAngularVelocity() const;
-	
-	void SetTargetPosition(FVector NewTargetPosition);
+  void DrawDebug();
 
-	void SetTargetRotation(float NewTargetRotation);
+  FVector GetLinearVelocity() const;
 
-	FVector closestPoint;
+  float GetAngularVelocity() const;
 
-	const TArray<Obstacle>& GetObstacles() const;
+  void SetTargetPosition(FVector NewTargetPosition);
 
-	void SetCollidingObstacle(Obstacle* CollidingObstacle);
+  void SetTargetRotation(float NewTargetRotation);
+
+  FVector closestPoint;
+
+  const TArray<Obstacle>& GetObstacles() const;
+
+  void SetCollidingObstacle(Obstacle* CollidingObstacle);
 private:
-	FVector current_linear_velocity;
-	float current_angular_velocity = 0.0f;
-	Obstacle* m_MostThreateningObstacle;
-	//Seek* m_steering; // P1
-	//Arrive* m_movement_steering; // P2
-	PathFollowing* m_movement_steering; // P3
-	//ObstacleAvoidance* m_movement_steering; // P4	
-	//PathFollowing* m_pathFollowing; // P5
-	//ObstacleAvoidance* m_obstacleAvoidance; // P5
-	//PathFollowingWithObstacleAvoidance* m_movement_steering; // P5
-	AlignToMovement* m_rotation_steering;
-	float CellSize = 100.0f;
-	FVector2D WorldToGrid(const FVector& WorldPos, const FVector& Orig = FVector::ZeroVector);
-	FVector GridToWorld(const FVector2D& GridPos, const FVector& Orig = FVector::ZeroVector);
-	TArray<FVector> Path;
-	FVector StartingPosition = FVector::ZeroVector;
-	FVector EndingPosition = FVector::ZeroVector;
-	int32 GetContainingPolygonIndex(const FVector& Point, const TArray<TArray<FVector>>& Polygons);
+  FVector current_linear_velocity;
+  float current_angular_velocity = 0.0f;
+  Obstacle* m_MostThreateningObstacle;
+  //Seek* m_steering; // P1
+  //Arrive* m_movement_steering; // P2
+  PathFollowing* m_movement_steering; // P3
+  //ObstacleAvoidance* m_movement_steering; // P4	
+  //PathFollowing* m_pathFollowing; // P5
+  //ObstacleAvoidance* m_obstacleAvoidance; // P5
+  //PathFollowingWithObstacleAvoidance* m_movement_steering; // P5
+  AlignToMovement* m_rotation_steering;
+  float CellSize = 100.0f;
+  FVector2D WorldToGrid(const FVector& WorldPos, const FVector& Orig = FVector::ZeroVector);
+  FVector GridToWorld(const FVector2D& GridPos, const FVector& Orig = FVector::ZeroVector);
+  TArray<FVector> Path;
+  FVector StartingPosition = FVector::ZeroVector;
+  FVector EndingPosition = FVector::ZeroVector;
+  int32 GetContainingPolygonIndex(const FVector& Point, const TArray<TArray<FVector>>& Polygons);
 };

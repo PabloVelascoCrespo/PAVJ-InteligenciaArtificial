@@ -26,6 +26,39 @@ AAICharacter::AAICharacter()
   m_NavMesh = MakeShared<NavMesh>();
 }
 
+void AAICharacter::Attack()
+{
+  UE_LOG(LogTemp, Display, TEXT("ATTACK!"));
+}
+
+bool AAICharacter::CanSeePlayer()
+{
+  UE_LOG(LogTemp, Display, TEXT("CAN WE SEE THE PLAYER?"));
+    return false;
+}
+
+bool AAICharacter::IsDead()
+{
+  UE_LOG(LogTemp, Display, TEXT("AM I DEAD?"));
+    return false;
+}
+
+bool AAICharacter::IsEnemyInRange()
+{
+  UE_LOG(LogTemp, Display, TEXT("IS ENEMY IN RANGE?"));
+    return false;
+}
+
+void AAICharacter::MoveTowardsEnemy()
+{
+  UE_LOG(LogTemp, Display, TEXT("MOVING TOWARDS ENEMY"));
+}
+
+void AAICharacter::SetImage(const char* imagepath)
+{
+  UE_LOG(LogTemp, Display, TEXT("SETING NEW IMAGE"));
+}
+
 // Called when the game starts or when spawned
 void AAICharacter::BeginPlay()
 {
