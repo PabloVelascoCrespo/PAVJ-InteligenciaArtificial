@@ -16,6 +16,7 @@
     <None Include="..\..\04_movimiento.pdf" />
     <None Include="..\..\05_movimiento_adv.pdf" />
     <None Include="..\..\06_pathfinding.pdf" />
+    <None Include="..\..\08_Pathfinding_navmesh.pdf" />
     <None Include="..\..\README.md" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
@@ -109,6 +110,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\debug\debugdraw.h">
       <Filter>Source\MPV_Practicas\debug</Filter>
+    </ClCompile>
+    <Filter Include="Source\MPV_Practicas\navmesh">
+      <UniqueIdentifier>{8A07CDCE-1C93-399E-B351-9B484FBF5BB3}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MPV_Practicas\navmesh\navmesh.cpp">
+      <Filter>Source\MPV_Practicas\navmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\navmesh\navmesh.h">
+      <Filter>Source\MPV_Practicas\navmesh</Filter>
     </ClCompile>
     <Filter Include="Source\MPV_Practicas\obstacle">
       <UniqueIdentifier>{64C0FF22-8497-378B-A152-F96A6663686E}</UniqueIdentifier>

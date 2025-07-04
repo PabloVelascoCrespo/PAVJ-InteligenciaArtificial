@@ -265,6 +265,7 @@
     <None Include="..\..\04_movimiento.pdf"/>
     <None Include="..\..\05_movimiento_adv.pdf"/>
     <None Include="..\..\06_pathfinding.pdf"/>
+    <None Include="..\..\08_Pathfinding_navmesh.pdf"/>
     <None Include="..\..\README.md"/>
     <None Include="..\..\Config\DefaultEditor.ini"/>
     <None Include="..\..\Config\DefaultEngine.ini"/>
@@ -338,6 +339,12 @@
       <AdditionalIncludeDirectories>$(ClCompile_AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\debug\debugdraw.h">
+      <AdditionalIncludeDirectories>$(ClCompile_AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\navmesh\navmesh.cpp">
+      <AdditionalIncludeDirectories>$(ClCompile_AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MPV_Practicas\navmesh\navmesh.h">
       <AdditionalIncludeDirectories>$(ClCompile_AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="..\..\Source\MPV_Practicas\obstacle\obstacle.cpp">

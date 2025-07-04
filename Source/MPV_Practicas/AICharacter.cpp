@@ -12,6 +12,8 @@
 #include "ObstacleAvoidance.h"
 #include "PathFollowingWithObstacleAvoidance.h"
 #include "pathfinder/pathfinder.h"
+#include "navmesh/navmesh.h"
+#include "GeomTools.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -19,7 +21,9 @@ AAICharacter::AAICharacter()
   // Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
   PrimaryActorTick.bCanEverTick = true;
 
-  PathfinderSystem = MakeShared<Pathfinder>();
+  //PathfinderSystem = MakeShared<Pathfinder>();
+
+  m_NavMesh = MakeShared<NavMesh>();
 }
 
 // Called when the game starts or when spawned
@@ -28,35 +32,36 @@ void AAICharacter::BeginPlay()
   Super::BeginPlay();
   // m_steering = new Seek(this); // PRACTICA 1
   //m_movement_steering = new Arrive(this); // PRACTICA 2
-  //m_movement_steering = new PathFollowing(this); // PRACTICA 3
+  m_movement_steering = new PathFollowing(this); // PRACTICA 3
   //m_movement_steering = new ObstacleAvoidance(this); // PRACTICA 4
 
   //m_pathFollowing = new PathFollowing(this); // PRACTICA 5
   //m_obstacleAvoidance = new ObstacleAvoidance(this); // PRACTICA 5
 
   //m_movement_steering = new PathFollowingWithObstacleAvoidance(this, m_pathFollowing, m_obstacleAvoidance); // PRACTICA 5
-  //m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
+  m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
 
-  //ReadParams("params.xml", m_params);
+  ReadParams("params.xml", m_params);
   //ReadPath("path.xml", m_path);
   //ReadObstacles("obstacles.xml", m_obstacles);
 
-  PathfinderSystem->LoadMap("map.txt", "cost.txt");
+  //PathfinderSystem->LoadMap("map.txt", "cost.txt"); PRACTICA 6
+  ReadNavMesh("navmesh.xml", *m_NavMesh);
 }
 
 void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
   Super::EndPlay(EndPlayReason);
-  //if (m_movement_steering)
-  //{
-  //	delete m_movement_steering;
-  //	m_movement_steering = nullptr;
-  //}
-  //if (m_rotation_steering)
-  //{
-  //	delete m_rotation_steering;
-  //	m_rotation_steering = nullptr;
-  //}
+  if (m_movement_steering)
+  {
+  	delete m_movement_steering;
+  	m_movement_steering = nullptr;
+  }
+  if (m_rotation_steering)
+  {
+  	delete m_rotation_steering;
+  	m_rotation_steering = nullptr;
+  }
   //if (m_pathFollowing)
   //{
   //	delete m_pathFollowing;
@@ -73,36 +78,36 @@ void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AAICharacter::Tick(float DeltaTime)
 {
   Super::Tick(DeltaTime);
-  //current_angle = GetActorAngle();
+  current_angle = GetActorAngle();
 
-  //// == STEERING BEHAVIORS == 
-  //Accelerations acc;
-  //acc.linear_acceleration = m_movement_steering->GetSteering().linear_acceleration;
-  //acc.angular_acceleration = m_rotation_steering->GetSteering().angular_acceleration;
+  // == STEERING BEHAVIORS == 
+  Accelerations acc;
+  acc.linear_acceleration = m_movement_steering->GetSteering().linear_acceleration;
+  acc.angular_acceleration = m_rotation_steering->GetSteering().angular_acceleration;
 
-  //// == LINEAR VELOCITY ==
-  //current_linear_velocity += acc.linear_acceleration * DeltaTime;
+  // == LINEAR VELOCITY ==
+  current_linear_velocity += acc.linear_acceleration * DeltaTime;
 
-  //if (current_linear_velocity.Length() > m_params.max_velocity)
-  //{
-  //	current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
-  //}
+  if (current_linear_velocity.Length() > m_params.max_velocity)
+  {
+  	current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
+  }
 
-  //FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
-  //SetActorLocation(charPos);
+  FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
+  SetActorLocation(charPos);
 
 
-  //// == ANGULAR VELOCITY == 
-  //current_angular_velocity += acc.angular_acceleration * DeltaTime;
+  // == ANGULAR VELOCITY == 
+  current_angular_velocity += acc.angular_acceleration * DeltaTime;
 
-  //if (current_angular_velocity > m_params.max_angular_velocity)
-  //{
-  //	current_angular_velocity = FMath::Clamp(current_angular_velocity, -m_params.max_angular_velocity, m_params.max_angular_velocity);
-  //}
-  //current_angular_velocity += acc.angular_acceleration * DeltaTime;
+  if (current_angular_velocity > m_params.max_angular_velocity)
+  {
+  	current_angular_velocity = FMath::Clamp(current_angular_velocity, -m_params.max_angular_velocity, m_params.max_angular_velocity);
+  }
+  current_angular_velocity += acc.angular_acceleration * DeltaTime;
 
-  //float newAngle = current_angle + current_angular_velocity * DeltaTime;
-  //SetActorRotation(FRotator(newAngle, 0, 0));
+  float newAngle = current_angle + current_angular_velocity * DeltaTime;
+  SetActorRotation(FRotator(newAngle, 0, 0));
 
   DrawDebug();
 
@@ -117,9 +122,11 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AAICharacter::OnClickedLeft(const FVector& mousePosition)
 {
-  //SetActorLocation(mousePosition);
-  FVector2D grid = WorldToGrid(mousePosition);
-  PathfinderSystem->SetStart(grid);
+  SetActorLocation(mousePosition);
+  //FVector2D grid = WorldToGrid(mousePosition);
+  //PathfinderSystem->SetStart(grid);
+
+  StartingPosition = mousePosition;
 }
 
 void AAICharacter::OnClickedRight(const FVector& mousePosition)
@@ -129,14 +136,17 @@ void AAICharacter::OnClickedRight(const FVector& mousePosition)
   //FVector dir = (mousePosition - GetActorLocation()).GetSafeNormal();
   //float angle = FMath::RadiansToDegrees(atan2(dir.Z, dir.X));
   //m_params.targetRotation = angle;
-  Path.Empty();
-  FVector2D grid = WorldToGrid(mousePosition);
-  PathfinderSystem->SetGoal(grid);
-  PathfinderSystem->FindPath();
-  for (FVector2D PathPoint : PathfinderSystem->GetPath())
-  {
-    Path.Add(GridToWorld(PathPoint));
-  }
+  //Path.Empty();
+  //FVector2D grid = WorldToGrid(mousePosition);
+  //PathfinderSystem->SetGoal(grid);
+  //PathfinderSystem->FindPath();
+  //for (FVector2D PathPoint : PathfinderSystem->GetPath())
+  //{
+  //  Path.Add(GridToWorld(PathPoint));
+  //}
+  EndingPosition = mousePosition;
+  Path = m_NavMesh->CalculatePath(StartingPosition, EndingPosition);
+  m_path.points = Path;
 }
 
 void AAICharacter::DrawDebug()
@@ -145,11 +155,11 @@ void AAICharacter::DrawDebug()
   //SetCircle(this, TEXT("closest_point"), closestPoint, 10.0f, FLinearColor::Blue);
 
   //SetCircle(this, TEXT("targetPosition"), m_params.targetPosition, m_params.arrive_radius, FLinearColor::Yellow);
-  //FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
-  //SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
+  FVector dir(cos(FMath::DegreesToRadians(m_params.targetRotation)), 0.0f, sin(FMath::DegreesToRadians(m_params.targetRotation)));
+  SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
 
-  //SetArrow(this, TEXT("linear_velocity"), current_linear_velocity, current_linear_velocity.Length());
-  //SetArrow(this, TEXT("linear_acceleration"), m_movement_steering->GetSteering().linear_acceleration, m_movement_steering->GetSteering().linear_acceleration.Length());
+  SetArrow(this, TEXT("linear_velocity"), current_linear_velocity, current_linear_velocity.Length());
+  SetArrow(this, TEXT("linear_acceleration"), m_movement_steering->GetSteering().linear_acceleration, m_movement_steering->GetSteering().linear_acceleration.Length());
 
   //TArray<TArray<FVector>> Polygons = {
   //  { FVector(0.f, 0.f, 0.f), FVector(100.f, 0.f, 0.f), FVector(100.f, 0.f, 100.0f), FVector(0.f, 0.f, 100.0f) },
@@ -179,55 +189,59 @@ void AAICharacter::DrawDebug()
   //	}
   //}
 
-  const TArray<GridNode>& grid = PathfinderSystem->GetGrid();
-  const int rows = PathfinderSystem->GetRows();
-  const int cols = PathfinderSystem->GetCols();
+  //const TArray<GridNode>& grid = PathfinderSystem->GetGrid();
+  //const int rows = PathfinderSystem->GetRows();
+  //const int cols = PathfinderSystem->GetCols();
 
-  const FVector Origin = FVector(grid[0].x, 0, grid[0].y);
+  //const FVector Origin = FVector(grid[0].x, 0, grid[0].y);
 
-  const float LineSize = 2.f;
-  const float Margin = LineSize * 0.5f;
+  //const float LineSize = 2.f;
+  //const float Margin = LineSize * 0.5f;
 
-  float maxCost = PathfinderSystem->GetMaxCost();
+  //float maxCost = PathfinderSystem->GetMaxCost();
 
-  auto Idx = [cols](int x, int y) { return y * cols + x; };
+  //auto Idx = [cols](int x, int y) { return y * cols + x; };
 
-  for (int y = 0; y < rows; ++y)
-  {
-    for (int x = 0; x < cols; ++x)
-    {
-      const GridNode& n = grid[Idx(x, y)];
+  //for (int y = 0; y < rows; ++y)
+  //{
+  //  for (int x = 0; x < cols; ++x)
+  //  {
+  //    const GridNode& n = grid[Idx(x, y)];
 
-      // --- color -----------------------------------------------------
-      FColor Color;
-      if (!n.walkable)
-      {
-        Color = FColor::Black;                 // muro
-      }
-      else
-      {
-        const float norm = 1.f - (n.cost / maxCost); // 1→verde, 0→rojo
-        Color = FColor::MakeRedToGreenColorFromScalar(norm);
-      }
+  //    // --- color -----------------------------------------------------
+  //    FColor Color;
+  //    if (!n.walkable)
+  //    {
+  //      Color = FColor::Black;                 // muro
+  //    }
+  //    else
+  //    {
+  //      const float norm = 1.f - (n.cost / maxCost); // 1→verde, 0→rojo
+  //      Color = FColor::MakeRedToGreenColorFromScalar(norm);
+  //    }
 
-      // --- esquinas en mundo -----------------------------------------
-      const FVector CellOrigin = Origin + FVector(x * CellSize, 0.f,
-        -y * CellSize); // plano X-Z
+  //    // --- esquinas en mundo -----------------------------------------
+  //    const FVector CellOrigin = Origin + FVector(x * CellSize, 0.f,
+  //      -y * CellSize); // plano X-Z
 
-      const FVector TL = CellOrigin + FVector(Margin, 0, -Margin);
-      const FVector TR = CellOrigin + FVector(CellSize - Margin, 0, -Margin);
-      const FVector BL = CellOrigin + FVector(Margin, 0, -CellSize + Margin);
-      const FVector BR = CellOrigin + FVector(CellSize - Margin, 0, -CellSize + Margin);
+  //    const FVector TL = CellOrigin + FVector(Margin, 0, -Margin);
+  //    const FVector TR = CellOrigin + FVector(CellSize - Margin, 0, -Margin);
+  //    const FVector BL = CellOrigin + FVector(Margin, 0, -CellSize + Margin);
+  //    const FVector BR = CellOrigin + FVector(CellSize - Margin, 0, -CellSize + Margin);
 
-      // --- dibujar ----------------------------------------------------
-      DrawDebugLine(GetWorld(), TL, TR, Color, false, -1.f, 0, LineSize);
-      DrawDebugLine(GetWorld(), TR, BR, Color, false, -1.f, 0, LineSize);
-      DrawDebugLine(GetWorld(), BR, BL, Color, false, -1.f, 0, LineSize);
-      DrawDebugLine(GetWorld(), BL, TL, Color, false, -1.f, 0, LineSize);
-    }
-  }
+  //    // --- dibujar ----------------------------------------------------
+  //    DrawDebugLine(GetWorld(), TL, TR, Color, false, -1.f, 0, LineSize);
+  //    DrawDebugLine(GetWorld(), TR, BR, Color, false, -1.f, 0, LineSize);
+  //    DrawDebugLine(GetWorld(), BR, BL, Color, false, -1.f, 0, LineSize);
+  //    DrawDebugLine(GetWorld(), BL, TL, Color, false, -1.f, 0, LineSize);
+  //  }
+  //}
 
   SetPath(this, TEXT("follow_path"), TEXT("path"), Path, 5.0f, PathMaterial);
+  SetPolygons(this, TEXT("navmesh"), TEXT("mesh"), m_NavMesh->polygons, NavmeshMaterial);
+  SetCircle(this, TEXT("startingPosition"), StartingPosition, 50, FLinearColor::Green);
+  SetCircle(this, TEXT("endingPosition"), EndingPosition, 50, FLinearColor::Red);
+
 }
 
 FVector AAICharacter::GetLinearVelocity() const
@@ -276,4 +290,24 @@ FVector AAICharacter::GridToWorld(const FVector2D& GridPos,
   return FVector((Orig.X + GridPos.X * CellSize) + CellSize / 2,
     Orig.Y,                              // Y plano
     -(Orig.Z + GridPos.Y * CellSize) - CellSize / 2);
+}
+
+int32 AAICharacter::GetContainingPolygonIndex(const FVector& Point, const TArray<TArray<FVector>>& Polygons)
+{
+  const FVector2D Test2D(Point.X, Point.Y);
+  for (int32 PolyId = 0; PolyId < Polygons.Num(); ++PolyId)
+  {
+    TArray<FVector2D> Poly2D;
+    Poly2D.Reserve(Polygons[PolyId].Num());
+    for (const FVector& V : Polygons[PolyId])
+    {
+      Poly2D.Add({ V.X, V.Y });
+    }
+
+    if (FGeomTools2D::IsPointInPolygon(Test2D, Poly2D))
+    {
+      return PolyId;
+    }
+  }
+  return INDEX_NONE;
 }

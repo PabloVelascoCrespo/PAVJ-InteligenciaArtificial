@@ -9,6 +9,12 @@ Accelerations PathFollowing::GetSteering()
   FVector pos = m_owner->GetActorLocation();
   float lookAhead = m_owner->GetParams().look_ahead;
   Path path = m_owner->GetPath();
+  Accelerations acc;
+
+  if (path.points.IsEmpty())
+  {
+    return acc;
+  }
 
   // Paso 1: encontrar el segmento más cercano
   float closestDistSq = FLT_MAX;
@@ -52,7 +58,6 @@ Accelerations PathFollowing::GetSteering()
   Arrive arrive(m_owner);
   AlignToMovement align(m_owner);
 
-  Accelerations acc;
   acc.linear_acceleration = arrive.GetSteering().linear_acceleration;
   return acc;
 }

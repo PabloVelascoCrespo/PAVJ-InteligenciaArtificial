@@ -20,6 +20,7 @@ class ObstacleAvoidance;
 class PathFollowing;
 class PathFollowingWithObstacleAvoidance;
 class Pathfinder;
+struct NavMesh;
 
 UCLASS()
 class MPV_PRACTICAS_API AAICharacter : public APawn
@@ -56,6 +57,8 @@ protected:
 	TArray<Obstacle> m_obstacles;
 	
 	TSharedPtr<Pathfinder> PathfinderSystem;
+
+	TSharedPtr<NavMesh> m_NavMesh;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -107,14 +110,17 @@ private:
 	Obstacle* m_MostThreateningObstacle;
 	//Seek* m_steering; // P1
 	//Arrive* m_movement_steering; // P2
-	//PathFollowing* m_movement_steering; // P3
+	PathFollowing* m_movement_steering; // P3
 	//ObstacleAvoidance* m_movement_steering; // P4	
-	PathFollowing* m_pathFollowing; // P5
-	ObstacleAvoidance* m_obstacleAvoidance; // P5
-	PathFollowingWithObstacleAvoidance* m_movement_steering; // P5
+	//PathFollowing* m_pathFollowing; // P5
+	//ObstacleAvoidance* m_obstacleAvoidance; // P5
+	//PathFollowingWithObstacleAvoidance* m_movement_steering; // P5
 	AlignToMovement* m_rotation_steering;
 	float CellSize = 100.0f;
 	FVector2D WorldToGrid(const FVector& WorldPos, const FVector& Orig = FVector::ZeroVector);
 	FVector GridToWorld(const FVector2D& GridPos, const FVector& Orig = FVector::ZeroVector);
 	TArray<FVector> Path;
+	FVector StartingPosition = FVector::ZeroVector;
+	FVector EndingPosition = FVector::ZeroVector;
+	int32 GetContainingPolygonIndex(const FVector& Point, const TArray<TArray<FVector>>& Polygons);
 };
