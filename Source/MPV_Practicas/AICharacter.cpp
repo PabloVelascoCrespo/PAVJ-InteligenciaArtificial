@@ -14,6 +14,10 @@
 #include "pathfinder/pathfinder.h"
 #include "navmesh/navmesh.h"
 #include "GeomTools.h"
+#include "PaperSpriteComponent.h"
+#include "PaperSprite.h"
+#include "state machine/stateMachine.h"
+
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -28,73 +32,111 @@ AAICharacter::AAICharacter()
 
 void AAICharacter::Attack()
 {
+  enemyAlive = false;
   UE_LOG(LogTemp, Display, TEXT("ATTACK!"));
 }
 
 bool AAICharacter::CanSeePlayer()
 {
-  UE_LOG(LogTemp, Display, TEXT("CAN WE SEE THE PLAYER?"));
-    return false;
+  float Dist = FVector::Dist(GetActorLocation(), EnemyLocation);
+  if (Dist < 250.0f)
+  {
+    return true;
+  }
+  return false;
 }
 
 bool AAICharacter::IsDead()
 {
-  UE_LOG(LogTemp, Display, TEXT("AM I DEAD?"));
-    return false;
+  return !enemyAlive;
 }
 
 bool AAICharacter::IsEnemyInRange()
 {
   UE_LOG(LogTemp, Display, TEXT("IS ENEMY IN RANGE?"));
+  if (!CanSeePlayer())
+  {
     return false;
+  }
+
+  float Dist = FVector::Dist(GetActorLocation(), EnemyLocation);
+  if (Dist < 100.0f)
+  {
+    return true;
+  }
+  return false;
 }
 
 void AAICharacter::MoveTowardsEnemy()
 {
   UE_LOG(LogTemp, Display, TEXT("MOVING TOWARDS ENEMY"));
+  SetTargetPosition(EnemyLocation);
 }
 
-void AAICharacter::SetImage(const char* imagepath)
+void AAICharacter::SetImage(const FString& NewSpritePath)
 {
-  UE_LOG(LogTemp, Display, TEXT("SETING NEW IMAGE"));
+  TArray<USceneComponent*> PawnComponents;
+  GetComponents(UPaperSpriteComponent::StaticClass(), PawnComponents, true);
+  // Check each component to find the PaperSpriteComponent
+  for (USceneComponent* Component : PawnComponents)
+  {
+    UPaperSpriteComponent* PaperSpriteComponent =
+      Cast<UPaperSpriteComponent>(Component);
+    if (PaperSpriteComponent)
+    {
+      UPaperSprite* NewSprite = LoadObject<UPaperSprite>(nullptr,
+        *NewSpritePath);
+      if (NewSprite)
+      {
+        // Set the new sprite for the actor
+        PaperSpriteComponent->SetSprite(NewSprite);
+      }
+      break;
+    }
+  }
 }
+
 
 // Called when the game starts or when spawned
 void AAICharacter::BeginPlay()
 {
   Super::BeginPlay();
-  // m_steering = new Seek(this); // PRACTICA 1
+  m_steering = new Seek(this); // PRACTICA 1
   //m_movement_steering = new Arrive(this); // PRACTICA 2
-  m_movement_steering = new PathFollowing(this); // PRACTICA 3
+  //m_movement_steering = new PathFollowing(this); // PRACTICA 3
   //m_movement_steering = new ObstacleAvoidance(this); // PRACTICA 4
 
   //m_pathFollowing = new PathFollowing(this); // PRACTICA 5
   //m_obstacleAvoidance = new ObstacleAvoidance(this); // PRACTICA 5
 
   //m_movement_steering = new PathFollowingWithObstacleAvoidance(this, m_pathFollowing, m_obstacleAvoidance); // PRACTICA 5
-  m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
+  //m_rotation_steering = new AlignToMovement(this); // PRACTICA 2
 
   ReadParams("params.xml", m_params);
   //ReadPath("path.xml", m_path);
   //ReadObstacles("obstacles.xml", m_obstacles);
 
   //PathfinderSystem->LoadMap("map.txt", "cost.txt"); PRACTICA 6
-  ReadNavMesh("navmesh.xml", *m_NavMesh);
+  //ReadNavMesh("navmesh.xml", *m_NavMesh);
+
+  stateMachine = new StateMachine();
+  stateMachine->load(this);
+  stateMachine->start();
 }
 
 void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
   Super::EndPlay(EndPlayReason);
-  if (m_movement_steering)
-  {
-  	delete m_movement_steering;
-  	m_movement_steering = nullptr;
-  }
-  if (m_rotation_steering)
-  {
-  	delete m_rotation_steering;
-  	m_rotation_steering = nullptr;
-  }
+  //if (m_movement_steering)
+  //{
+  //  delete m_movement_steering;
+  //  m_movement_steering = nullptr;
+  //}
+  //if (m_rotation_steering)
+  //{
+  //  delete m_rotation_steering;
+  //  m_rotation_steering = nullptr;
+  //}
   //if (m_pathFollowing)
   //{
   //	delete m_pathFollowing;
@@ -105,25 +147,32 @@ void AAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
   //	delete m_obstacleAvoidance;
   //	m_obstacleAvoidance = nullptr;
   //}
+  if (m_steering)
+  {
+    delete m_steering;
+    m_steering = nullptr;
+  }
 }
 
 // Called every frame
 void AAICharacter::Tick(float DeltaTime)
 {
   Super::Tick(DeltaTime);
+
+  stateMachine->update(DeltaTime);
   current_angle = GetActorAngle();
 
   // == STEERING BEHAVIORS == 
   Accelerations acc;
-  acc.linear_acceleration = m_movement_steering->GetSteering().linear_acceleration;
-  acc.angular_acceleration = m_rotation_steering->GetSteering().angular_acceleration;
+  acc.linear_acceleration = m_steering->GetSteering().linear_acceleration;
+  acc.angular_acceleration = m_steering->GetSteering().angular_acceleration;
 
   // == LINEAR VELOCITY ==
   current_linear_velocity += acc.linear_acceleration * DeltaTime;
 
   if (current_linear_velocity.Length() > m_params.max_velocity)
   {
-  	current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
+    current_linear_velocity = current_linear_velocity.GetSafeNormal() * m_params.max_velocity;
   }
 
   FVector charPos = GetActorLocation() + current_linear_velocity * DeltaTime;
@@ -135,7 +184,7 @@ void AAICharacter::Tick(float DeltaTime)
 
   if (current_angular_velocity > m_params.max_angular_velocity)
   {
-  	current_angular_velocity = FMath::Clamp(current_angular_velocity, -m_params.max_angular_velocity, m_params.max_angular_velocity);
+    current_angular_velocity = FMath::Clamp(current_angular_velocity, -m_params.max_angular_velocity, m_params.max_angular_velocity);
   }
   current_angular_velocity += acc.angular_acceleration * DeltaTime;
 
@@ -192,7 +241,7 @@ void AAICharacter::DrawDebug()
   SetArrow(this, TEXT("targetRotation"), dir, 80.0f);
 
   SetArrow(this, TEXT("linear_velocity"), current_linear_velocity, current_linear_velocity.Length());
-  SetArrow(this, TEXT("linear_acceleration"), m_movement_steering->GetSteering().linear_acceleration, m_movement_steering->GetSteering().linear_acceleration.Length());
+  SetArrow(this, TEXT("linear_acceleration"), m_steering->GetSteering().linear_acceleration, m_steering->GetSteering().linear_acceleration.Length());
 
   //TArray<TArray<FVector>> Polygons = {
   //  { FVector(0.f, 0.f, 0.f), FVector(100.f, 0.f, 0.f), FVector(100.f, 0.f, 100.0f), FVector(0.f, 0.f, 100.0f) },
@@ -270,11 +319,19 @@ void AAICharacter::DrawDebug()
   //  }
   //}
 
-  SetPath(this, TEXT("follow_path"), TEXT("path"), Path, 5.0f, PathMaterial);
-  SetPolygons(this, TEXT("navmesh"), TEXT("mesh"), m_NavMesh->polygons, NavmeshMaterial);
-  SetCircle(this, TEXT("startingPosition"), StartingPosition, 50, FLinearColor::Green);
-  SetCircle(this, TEXT("endingPosition"), EndingPosition, 50, FLinearColor::Red);
+  //SetPath(this, TEXT("follow_path"), TEXT("path"), Path, 5.0f, PathMaterial);
+  //SetPolygons(this, TEXT("navmesh"), TEXT("mesh"), m_NavMesh->polygons, NavmeshMaterial);
+  //SetCircle(this, TEXT("startingPosition"), StartingPosition, 50, FLinearColor::Green);
+  //SetCircle(this, TEXT("endingPosition"), EndingPosition, 50, FLinearColor::Red);
+  if (enemyAlive)
+  {
+    SetCircle(this, TEXT("enemyPosition"), EnemyLocation, 100, FLinearColor::Red);
+  }
+  else 
+  {
+    SetCircle(this, TEXT("enemyPosition"), EnemyLocation, 100, FLinearColor::White);
 
+  }
 }
 
 FVector AAICharacter::GetLinearVelocity() const

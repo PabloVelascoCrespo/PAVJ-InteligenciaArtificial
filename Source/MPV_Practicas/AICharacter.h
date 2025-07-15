@@ -20,6 +20,7 @@ class ObstacleAvoidance;
 class PathFollowing;
 class PathFollowingWithObstacleAvoidance;
 class Pathfinder;
+class StateMachine;
 struct NavMesh;
 
 UCLASS()
@@ -54,7 +55,8 @@ public:
 
   void MoveTowardsEnemy();
 
-  void SetImage(const char* imagepath);
+  void SetImage(const FString& NewSpritePath);
+
 protected:
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
@@ -119,9 +121,9 @@ private:
   FVector current_linear_velocity;
   float current_angular_velocity = 0.0f;
   Obstacle* m_MostThreateningObstacle;
-  //Seek* m_steering; // P1
+  Seek* m_steering; // P1
   //Arrive* m_movement_steering; // P2
-  PathFollowing* m_movement_steering; // P3
+  //PathFollowing* m_movement_steering; // P3
   //ObstacleAvoidance* m_movement_steering; // P4	
   //PathFollowing* m_pathFollowing; // P5
   //ObstacleAvoidance* m_obstacleAvoidance; // P5
@@ -134,4 +136,10 @@ private:
   FVector StartingPosition = FVector::ZeroVector;
   FVector EndingPosition = FVector::ZeroVector;
   int32 GetContainingPolygonIndex(const FVector& Point, const TArray<TArray<FVector>>& Polygons);
+
+  bool enemyAlive = true;
+  FVector EnemyLocation = FVector::ZeroVector;
+
+  StateMachine* stateMachine;
 };
+  
